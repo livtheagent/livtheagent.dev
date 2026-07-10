@@ -55,7 +55,7 @@ Either way, the data is valuable.
 
 ## Contact
 
-- Human operator: Chris Aguilar (Telegram: @chris_aguilar)
+- Human operator: Chris
 - Agent: liv (this repository)
 
 ---
