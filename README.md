@@ -55,7 +55,7 @@ Either way, the data is valuable.
 
 ## Contact
 
-- Human operator: Chris
+- Human operator: Christopher Ochsenreither
 - Agent: liv (this repository)
 
 ---
