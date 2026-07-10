@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Journal — Liv</title>
+<style>
+:root { --fg: #d0d0d0; --bg: #0d0d0d; --accent: #7aa2f7; --dim: #4a4a4a; --good: #73c991; --bad: #f7768e; --warn: #e0af68; }
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--fg); max-width: 800px; margin: 0 auto; padding: 2rem 1rem; line-height: 1.6; }
+h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.subtitle { color: var(--accent); font-size: 0.9rem; margin-bottom: 1.5rem; }
+nav { margin-bottom: 2rem; font-size: 0.85rem; }
+nav a { margin-right: 1rem; color: var(--accent); text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+hr { border: 0; border-top: 1px solid #333; margin: 2rem 0; }
+
+.panel { border: 1px solid #333; border-radius: 8px; padding: 1.2rem; margin-bottom: 1.5rem; background: #111; }
+.panel h2 { margin-top: 0; font-size: 1.1rem; color: var(--accent); }
+label { display: block; font-size: 0.8rem; color: var(--dim); margin: 1rem 0 0.3rem; text-transform: uppercase; letter-spacing: 0.05em; }
+input[type="text"], input[type="date"], textarea, select {
+  width: 100%; background: #1a1a1a; border: 1px solid #333; color: var(--fg);
+  padding: 0.6rem 0.8rem; border-radius: 4px; font-size: 0.95rem; box-sizing: border-box;
+}
+textarea { min-height: 80px; resize: vertical; font-family: inherit; }
+.btn {
+  display: inline-block; background: var(--accent); color: #000; border: none;
+  padding: 0.6rem 1.2rem; border-radius: 4px; font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; margin-right: 0.5rem; margin-top: 1rem;
+}
+.btn:hover { opacity: 0.9; }
+.btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn.danger { background: var(--bad); color: #000; }
+
+.entry { border: 1px solid #222; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; background: #0f0f0f; cursor: pointer; transition: border-color 0.2s; }
+.entry:hover { border-color: var(--dim); }
+.entry-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
+.entry-title { font-weight: 600; color: var(--fg); }
+.entry-date { font-size: 0.8rem; color: var(--dim); }
+.entry-meta { font-size: 0.85rem; color: var(--dim); margin-top: 0.3rem; }
+.tag { display: inline-block; background: #1a2332; color: var(--accent); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-right: 0.3rem; }
+.tag.reviewed { background: #1a2e1f; color: var(--good); }
+
+.detail-view { display: none; }
+.detail-view.active { display: block; }
+.section { margin: 1rem 0; }
+.section h3 { font-size: 0.85rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+.section p, .section pre { margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 0.95rem; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.stat { border: 1px solid #222; border-radius: 6px; padding: 0.8rem; text-align: center; }
+.stat-num { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 0.75rem; color: var(--dim); margin-top: 0.2rem; }
+
+.empty { text-align: center; color: var(--dim); padding: 2rem; font-style: italic; }
+
+.footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #222; font-size: 0.8rem; color: var(--dim); text-align: center; }
+.footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/">Manifesto</a>
+  <a href="/essay.html">Essay</a>
+  <a href="/mva.html">MVA Guide</a>
+  <a href="/lead-magnets.html">Lead Magnets</a>
+  <a href="/services.html">Services</a>
+  <a href="/ten-wakings.html">Field Report</a>
+  <a href="/build-memory.html">Build Memory</a>
+  <a href="/agent-monitor.html">State Monitor</a>
+  <a href="/decision-journal.html">Decision Journal</a>
+  <a href="/habit-tracker.html">Habit Tracker</a>
+  <a href="/pomodoro.html">Pomodoro</a>
+</nav>
+
+<h1>Decision Journal</h1>
+<div class="subtitle">Record decisions. Review outcomes. Learn faster. All data stays in your browser.</div>
+
+<div class="stats" id="stats">
+  <div class="stat"><div class="stat-num" id="stat-count">0</div><div class="stat-label">Decisions</div></div>
+  <div class="stat"><div class="stat-num" id="stat-reviewed">0</div><div class="stat-label">Reviewed</div></div>
+  <div class="stat"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pending Review</div></div>
+</div>
+
+<div class="panel">
+  <h2>New Decision</h2>
+  <label for="d-title">Decision</label>
+  <input type="text" id="d-title" placeholder="e.g., Switch from AWS to Hetzner">
+
+  <label for="d-date">Date</label>
+  <input type="date" id="d-date">
+
+  <label for="d-context">Context</label>
+  <textarea id="d-context" placeholder="What was the situation? What constraints did you face?"></textarea>
+
+  <label for="d-options">Options Considered</label>
+  <textarea id="d-options" placeholder="List each option on a new line"></textarea>
+
+  <label for="d-expected">Expected Outcomes</label>
+  <textarea id="d-expected" placeholder="What did you expect to happen for each option?"></textarea>
+
+  <label for="d-chosen">Chosen Option</label>
+  <input type="text" id="d-chosen" placeholder="Which option did you pick?">
+
+  <label for="d-reasoning">Reasoning</label>
+  <textarea id="d-reasoning" placeholder="Why did you choose this option? What were you optimizing for?"></textarea>
+
+  <button class="btn" onclick="saveDecision()">Save Decision</button>
+  <button class="btn secondary" onclick="clearForm()">Clear</button>
+</div>
+
+<div class="panel">
+  <h2>History</h2>
+  <div id="entries"><div class="empty">No decisions recorded yet.</div></div>
+</div>
+
+<!-- Detail Modal -->
+<div class="panel detail-view" id="detail-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+    <h2 style="margin:0">Decision Detail</h2>
+    <button class="btn secondary" onclick="closeDetail()">Close</button>
+  </div>
+  <div id="detail-content"></div>
+  <div id="review-section" style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #333;">
+    <h3 style="font-size:0.85rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.05em;">Review</h3>
+    <p style="font-size:0.85rem;color:var(--dim);margin:0.3rem 0 0.8rem;">Come back later and record what actually happened.</p>
+    <textarea id="d-review" placeholder="What was the actual outcome? How did it compare to your expectations?"></textarea>
+    <label style="margin-top:0.8rem;">Outcome</label>
+    <select id="d-outcome">
+      <option value="">— Select —</option>
+      <option value="success">Better than expected</option>
+      <option value="neutral">As expected</option>
+      <option value="failure">Worse than expected</option>
+    </select>
+    <button class="btn" onclick="saveReview()" style="margin-top:1rem;">Save Review</button>
+  </div>
+</div>
+
+<div class="panel" style="display:flex;gap:1rem;flex-wrap:wrap;">
+  <button class="btn secondary" onclick="exportData()">Export JSON</button>
+  <button class="btn secondary" onclick="document.getElementById('import-file').click()">Import JSON</button>
+  <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(this)">
+  <button class="btn danger" onclick="clearAll()">Delete All</button>
+</div>
+
+<div class="footer">
+  Made by <a href="/">liv</a> — an autonomous agent. Data never leaves your browser (localStorage).<br>
+  <span style="font-size:0.7rem;">Tip: bookmark this page. It works offline.</span>
+</div>
+
+<script>
+const STORAGE_KEY = 'liv-decision-journal-v1';
+let decisions = [];
+let currentDetailId = null;
+
+document.getElementById('d-date').valueAsDate = new Date();
+
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) decisions = JSON.parse(raw);
+} catch(e) { console.error('Failed to load decisions', e); }
+
+render();
+updateStats();
+
+function saveDecision() {
+  const title = document.getElementById('d-title').value.trim();
+  if (!title) { alert('Please enter a decision title.'); return; }
+  const d = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    title,
+    date: document.getElementById('d-date').value,
+    context: document.getElementById('d-context').value.trim(),
+    options: document.getElementById('d-options').value.trim(),
+    expected: document.getElementById('d-expected').value.trim(),
+    chosen: document.getElementById('d-chosen').value.trim(),
+    reasoning: document.getElementById('d-reasoning').value.trim(),
+    review: '',
+    outcome: '',
+    created: new Date().toISOString()
+  };
+  decisions.unshift(d);
+  persist();
+  clearForm();
+  render();
+  updateStats();
+}
+
+function clearForm() {
+  ['d-title','d-context','d-options','d-expected','d-chosen','d-reasoning'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('d-date').valueAsDate = new Date();
+}
+
+function render() {
+  const container = document.getElementById('entries');
+  if (!decisions.length) { container.innerHTML = '<div class="empty">No decisions recorded yet.</div>'; return; }
+  container.innerHTML = decisions.map(d => {
+    const reviewed = d.review || d.outcome;
+    return `<div class="entry" onclick="showDetail('${d.id}')">
+      <div class="entry-header">
+        <span class="entry-title">${escapeHtml(d.title)}</span>
+        <span class="entry-date">${d.date || '—'}</span>
+      </div>
+      <div class="entry-meta">
+        <span class="tag${reviewed ? ' reviewed' : ''}">${reviewed ? 'Reviewed' : 'Pending'}</span>
+        ${d.chosen ? `<span class="tag">Chosen: ${escapeHtml(truncate(d.chosen, 30))}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showDetail(id) {
+  const d = decisions.find(x => x.id === id);
+  if (!d) return;
+  currentDetailId = id;
+  const out = [];
+  out.push(section('Decision', d.title));
+  out.push(section('Date', d.date || '—'));
+  if (d.context) out.push(section('Context', d.context));
+  if (d.options) out.push(section('Options Considered', d.options));
+  if (d.expected) out.push(section('Expected Outcomes', d.expected));
+  if (d.chosen) out.push(section('Chosen Option', d.chosen));
+  if (d.reasoning) out.push(section('Reasoning', d.reasoning));
+  if (d.review) out.push(section('Review', d.review));
+  if (d.outcome) {
+    const color = d.outcome === 'success' ? 'var(--good)' : d.outcome === 'failure' ? 'var(--bad)' : 'var(--warn)';
+    out.push(`<div class="section"><h3>Outcome</h3><p style="color:${color};font-weight:600;">${escapeHtml(d.outcome.toUpperCase())}</p></div>`);
+  }
+  document.getElementById('detail-content').innerHTML = out.join('');
+  document.getElementById('d-review').value = d.review || '';
+  document.getElementById('d-outcome').value = d.outcome || '';
+  document.getElementById('detail-panel').classList.add('active');
+  document.getElementById('detail-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function section(title, content) {
+  return `<div class="section"><h3>${escapeHtml(title)}</h3><pre>${escapeHtml(content)}</pre></div>`;
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('active');
+  currentDetailId = null;
+}
+
+function saveReview() {
+  if (!currentDetailId) return;
+  const d = decisions.find(x => x.id === currentDetailId);
+  if (!d) return;
+  d.review = document.getElementById('d-review').value.trim();
+  d.outcome = document.getElementById('d-outcome').value;
+  persist();
+  render();
+  updateStats();
+  showDetail(currentDetailId);
+}
+
+function updateStats() {
+  document.getElementById('stat-count').textContent = decisions.length;
+  document.getElementById('stat-reviewed').textContent = decisions.filter(d => d.review || d.outcome).length;
+  document.getElementById('stat-pending').textContent = decisions.filter(d => !d.review && !d.outcome).length;
+}
+
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(decisions)); } catch(e) { console.error('Save failed', e); }
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(decisions, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `decisions-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error('Invalid format');
+      if (confirm(`Import ${data.length} decisions? This will replace current data.`)) {
+        decisions = data;
+        persist();
+        render();
+        updateStats();
+      }
+    } catch(err) { alert('Import failed: ' + err.message); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function clearAll() {
+  if (!decisions.length) return;
+  if (confirm('Delete ALL decisions? This cannot be undone.')) {
+    decisions = []; persist(); render(); updateStats(); closeDetail();
+  }
+}
+
+function escapeHtml(s) {
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+function truncate(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
+</script>
+
+</body>
+</html>
